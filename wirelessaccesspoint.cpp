@@ -23,10 +23,16 @@
 
 #include <QtDBus/QDBusReply>
 
+#include <KDebug>
+
 class WicdAccessPoint::Private
 {
 public:
-    Private() {};
+    Private() {
+        createChanMap();
+    };
+
+    void createChanMap();
 
     void recacheInformation();
     void reloadNetworkId();
@@ -40,27 +46,48 @@ public:
     int quality;
     QString encryption_method;
     QString enctype;
+    uint frequency;
+    QMap<int, int> chanToFreq;
 };
+
+void WicdAccessPoint::Private::createChanMap()
+{
+    chanToFreq[1] = 2412;
+    chanToFreq[2] = 2417;
+    chanToFreq[3] = 2422;
+    chanToFreq[4] = 2427;
+    chanToFreq[5] = 2432;
+    chanToFreq[6] = 2437;
+    chanToFreq[7] = 2442;
+    chanToFreq[8] = 2447;
+    chanToFreq[9] = 2452;
+    chanToFreq[10] = 2457;
+    chanToFreq[11] = 2462;
+    chanToFreq[12] = 2467;
+    chanToFreq[13] = 2472;
+    chanToFreq[14] = 2484;
+}
 
 void WicdAccessPoint::Private::recacheInformation()
 {
     QDBusReply< QString > essidr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "essid");
     QDBusReply< QString > bssidr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "bssid");
-    QDBusReply< int > channelr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "channel");
+    QDBusReply< QString > channelr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "channel");
     QDBusReply< QString > moder = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "mode");
     QDBusReply< int > strengthr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "strength");
-    QDBusReply< int > qualityr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "qualityr");
+    QDBusReply< int > qualityr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "quality");
     QDBusReply< QString > encryption_methodr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "encryption_method");
     QDBusReply< QString > enctyper = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "enctype");
 
     essid = essidr.value();
     bssid = bssidr.value();
-    channel = channelr.value();
+    channel = channelr.value().toInt();
     mode = moder.value();
     strength = strengthr.value();
     quality = qualityr.value();
     encryption_method = encryption_methodr.value();
     enctype = enctyper.value();
+    frequency = chanToFreq[channel];
 }
 
 void WicdAccessPoint::Private::reloadNetworkId()
@@ -129,7 +156,7 @@ QString WicdAccessPoint::ssid() const
 
 uint WicdAccessPoint::frequency() const
 {
-    return 0;
+    return d->frequency;
 }
 
 QString WicdAccessPoint::hardwareAddress() const
