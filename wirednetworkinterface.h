@@ -34,6 +34,7 @@ public:
     WicdWiredNetworkInterface(const QString  & objectPath);
     virtual ~WicdWiredNetworkInterface();
 
+    Solid::Control::NetworkInterface::Type type() const;
     QString hardwareAddress() const;
     int bitRate() const;
     bool carrier() const;

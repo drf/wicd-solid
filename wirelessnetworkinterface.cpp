@@ -73,6 +73,11 @@ WicdWirelessNetworkInterface::~WicdWirelessNetworkInterface()
     delete d;
 }
 
+Solid::Control::NetworkInterface::Type WicdWirelessNetworkInterface::type() const
+{
+    return Solid::Control::NetworkInterface::Ieee80211;
+}
+
 int WicdWirelessNetworkInterface::bitRate() const
 {
     return d->bitrate;

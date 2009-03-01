@@ -42,7 +42,7 @@ public:
     Solid::Control::IPv4Config ipV4Config() const;
     QString uni() const;
     bool isActive() const;
-    Solid::Control::NetworkInterface::Type type() const;
+    virtual Solid::Control::NetworkInterface::Type type() const = 0;
     Solid::Control::NetworkInterface::ConnectionState connectionState() const;
     int designSpeed() const;
     Solid::Control::NetworkInterface::Capabilities capabilities() const;

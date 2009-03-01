@@ -123,11 +123,6 @@ bool WicdNetworkInterface::isActive() const
 
 }
 
-Solid::Control::NetworkInterface::Type WicdNetworkInterface::type() const
-{
-
-}
-
 Solid::Control::NetworkInterface::ConnectionState WicdNetworkInterface::connectionState() const
 {
 

@@ -32,6 +32,7 @@ class WicdWirelessNetworkInterface : public WicdNetworkInterface, virtual public
 public:
     WicdWirelessNetworkInterface(const QString  & objectPath);
     virtual ~WicdWirelessNetworkInterface();
+    Solid::Control::NetworkInterface::Type type() const;
     int bitRate() const;
     Solid::Control::WirelessNetworkInterface::Capabilities wirelessCapabilities() const;
     Solid::Control::WirelessNetworkInterface::OperationMode mode() const;
