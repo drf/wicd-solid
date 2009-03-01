@@ -74,7 +74,7 @@ void WicdAccessPoint::Private::recacheInformation()
     QDBusReply< QString > essidr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "essid");
     QDBusReply< QString > bssidr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "bssid");
     QDBusReply< QString > channelr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "channel");
-    QDBusReply< QString > bitrater = WicdDbusInterface::instance()->wireless().call("GetCurrentBitrate");
+    QDBusReply< QString > bitrater = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "bitrates");
     QDBusReply< QString > moder = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "mode");
     QDBusReply< int > strengthr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "strength");
     QDBusReply< int > qualityr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "quality");
@@ -90,7 +90,13 @@ void WicdAccessPoint::Private::recacheInformation()
     encryption_method = encryption_methodr.value();
     enctype = enctyper.value();
     frequency = chanToFreq[channel];
-    bitrate = bitrater.value().split(' ').at(0).toInt() * 1000;
+    QStringList bitrates = bitrater.value().split(" Mb/s; ");
+    bitrates.last().remove(" Mb/s");
+    bitrate = 0;
+
+    foreach (const QString &b, bitrates) {
+        bitrate = qMax(bitrate, b.toInt() * 1000);
+    }
 }
 
 void WicdAccessPoint::Private::reloadNetworkId()
