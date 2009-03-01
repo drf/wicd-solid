@@ -38,20 +38,36 @@ public:
 
     QMap<int, QString> getAccessPointsWithId();
 
+    QString uni;
     int bitrate;
     int current_network;
     QString driver;
+    QString mode;
+    QString auth_methods;
 };
 
 void WicdWirelessNetworkInterface::Private::recacheInformation()
 {
-    QDBusReply< QString > bitrater = WicdDbusInterface::instance()->wireless().call("GetCurrentBitrate");
+    QProcess process;
+    process.start("iwconfig " + uni);
+    process.waitForFinished();
+    QString iwconfig = process.readAll();
+    process.close();
+    process.start("iwlist " + uni + " auth");
+    process.waitForFinished();
+    QString iwlist = process.readAll();
+
+    QDBusReply< QString > bitrater = WicdDbusInterface::instance()->wireless().call("GetCurrentBitrate", iwconfig);
+    QDBusReply< QString > authmr = WicdDbusInterface::instance()->wireless().call("GetAvailableAuthMethods", iwlist);
+    QDBusReply< QString > moder = WicdDbusInterface::instance()->wireless().call("GetOperationalMode", iwconfig);
     QDBusReply< int > networkr = WicdDbusInterface::instance()->wireless().call("GetCurrentNetworkID");
     QDBusReply< QString > driverr = WicdDbusInterface::instance()->daemon().call("GetWPADriver");
 
     bitrate = bitrater.value().split(' ').at(0).toInt() * 1000;
     current_network = networkr.value();
     driver = driverr.value();
+    mode = moder.value();
+    auth_methods = authmr.value();
 }
 
 QMap<int, QString> WicdWirelessNetworkInterface::Private::getAccessPointsWithId()
@@ -71,6 +87,7 @@ WicdWirelessNetworkInterface::WicdWirelessNetworkInterface(const QString &object
         : WicdNetworkInterface(objectPath)
         , d(new Private())
 {
+    d->uni = uni();
     d->recacheInformation();
 }
 
@@ -96,12 +113,35 @@ int WicdWirelessNetworkInterface::bitRate() const
 
 Solid::Control::WirelessNetworkInterface::Capabilities WicdWirelessNetworkInterface::wirelessCapabilities() const
 {
+    Solid::Control::WirelessNetworkInterface::Capabilities cap;
 
+    if (d->auth_methods.contains("WPA")) {
+        cap |= Solid::Control::WirelessNetworkInterface::Wpa;
+    }
+    if (d->auth_methods.contains("CIPHER-TKIP")) {
+        cap |= Solid::Control::WirelessNetworkInterface::Tkip;
+    }
+    if (d->auth_methods.contains("CIPHER-CCMP")) {
+        cap |= Solid::Control::WirelessNetworkInterface::Ccmp;
+    }
+
+    cap |= Solid::Control::WirelessNetworkInterface::Wep104;
+    cap |= Solid::Control::WirelessNetworkInterface::Wep40;
+
+    return cap;
 }
 
 Solid::Control::WirelessNetworkInterface::OperationMode WicdWirelessNetworkInterface::mode() const
 {
+    if (d->mode == "Master") {
+        return Solid::Control::WirelessNetworkInterface::Master;
+    } else if (d->mode == "Managed") {
+        return Solid::Control::WirelessNetworkInterface::Managed;
+    } else if (d->mode == "Adhoc") {
+        return Solid::Control::WirelessNetworkInterface::Adhoc;
+    }
 
+    return Solid::Control::WirelessNetworkInterface::Master;
 }
 
 MacAddressList WicdWirelessNetworkInterface::accessPoints() const
