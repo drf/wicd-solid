@@ -34,8 +34,19 @@ class WicdWirelessNetworkInterface::Private
 public:
     Private() {};
 
+    void recacheInformation();
+
     QMap<int, QString> getAccessPointsWithId();
+
+    int bitrate;
 };
+
+void WicdWirelessNetworkInterface::Private::recacheInformation()
+{
+    QDBusReply< QString > bitrater = WicdDbusInterface::instance()->wireless().call("GetCurrentBitrate");
+
+    bitrate = bitrater.value().split(' ').at(0).toInt() * 1000;
+}
 
 QMap<int, QString> WicdWirelessNetworkInterface::Private::getAccessPointsWithId()
 {
@@ -54,7 +65,7 @@ WicdWirelessNetworkInterface::WicdWirelessNetworkInterface(const QString &object
         : WicdNetworkInterface(objectPath)
         , d(new Private())
 {
-
+    d->recacheInformation();
 }
 
 WicdWirelessNetworkInterface::~WicdWirelessNetworkInterface()
@@ -64,7 +75,7 @@ WicdWirelessNetworkInterface::~WicdWirelessNetworkInterface()
 
 int WicdWirelessNetworkInterface::bitRate() const
 {
-
+    return d->bitrate;
 }
 
 Solid::Control::WirelessNetworkInterface::Capabilities WicdWirelessNetworkInterface::wirelessCapabilities() const
