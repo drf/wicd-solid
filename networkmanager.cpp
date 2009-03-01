@@ -222,8 +222,11 @@ void WicdNetworkManager::activateConnection(const QString & interfaceUni, const 
     QHash<QString, WicdNetworkInterface *>::ConstIterator it = d->interfaces.find(interfaceUni);
     if (it != d->interfaces.end()) {
         WicdNetworkInterface * interface = it.value();
-        if (!interface)
+
+        if (!interface) {
             interface = qobject_cast<WicdNetworkInterface *>(createNetworkInterface(interfaceUni));
+        }
+
         if (interface) {
             bool activated = interface->activateConnection(connectionUni, connectionParameters);
             Q_UNUSED(activated)
@@ -244,12 +247,16 @@ void WicdNetworkManager::deactivateConnection(const QString & activeConnection)
 
 void WicdNetworkManager::setNetworkingEnabled(bool enabled)
 {
-    //TODO
+    WicdDbusInterface::instance()->daemon().call("SetSuspend", !enabled);
 }
 
 void WicdNetworkManager::setWirelessEnabled(bool enabled)
 {
-    //TODO
+    if (enabled) {
+        WicdDbusInterface::instance()->wireless().call("EnableWirelessInterface");
+    } else {
+        WicdDbusInterface::instance()->wireless().call("DisableWirelessInterface");
+    }
 }
 
 #include "networkmanager.moc"
