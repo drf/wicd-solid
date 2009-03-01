@@ -40,6 +40,11 @@ Solid::Control::NetworkInterface::Type WicdWiredNetworkInterface::type() const
     return Solid::Control::NetworkInterface::Ieee8023;
 }
 
+QString WicdWiredNetworkInterface::driver() const
+{
+    return QString();
+}
+
 QString WicdWiredNetworkInterface::hardwareAddress() const
 {
     // Let's parse ifconfig here

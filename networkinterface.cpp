@@ -69,11 +69,6 @@ QString WicdNetworkInterface::interfaceName() const
     return d->name;
 }
 
-QString WicdNetworkInterface::driver() const
-{
-    return QString();
-}
-
 Solid::Control::IPv4Config WicdNetworkInterface::ipV4Config() const
 {
     // Let's parse ifconfig here

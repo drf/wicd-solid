@@ -38,7 +38,7 @@ public:
     WicdNetworkInterface(const QString &name);
     virtual ~WicdNetworkInterface();
     QString interfaceName() const;
-    QString driver() const;
+    virtual QString driver() const = 0;
     Solid::Control::IPv4Config ipV4Config() const;
     QString uni() const;
     bool isActive() const;

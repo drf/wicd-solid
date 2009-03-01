@@ -39,13 +39,19 @@ public:
     QMap<int, QString> getAccessPointsWithId();
 
     int bitrate;
+    int current_network;
+    QString driver;
 };
 
 void WicdWirelessNetworkInterface::Private::recacheInformation()
 {
     QDBusReply< QString > bitrater = WicdDbusInterface::instance()->wireless().call("GetCurrentBitrate");
+    QDBusReply< int > networkr = WicdDbusInterface::instance()->wireless().call("GetCurrentNetworkID");
+    QDBusReply< QString > driverr = WicdDbusInterface::instance()->daemon().call("GetWPADriver");
 
     bitrate = bitrater.value().split(' ').at(0).toInt() * 1000;
+    current_network = networkr.value();
+    driver = driverr.value();
 }
 
 QMap<int, QString> WicdWirelessNetworkInterface::Private::getAccessPointsWithId()
@@ -78,6 +84,11 @@ Solid::Control::NetworkInterface::Type WicdWirelessNetworkInterface::type() cons
     return Solid::Control::NetworkInterface::Ieee80211;
 }
 
+QString WicdWirelessNetworkInterface::driver() const
+{
+    return d->driver;
+}
+
 int WicdWirelessNetworkInterface::bitRate() const
 {
     return d->bitrate;
@@ -100,12 +111,23 @@ MacAddressList WicdWirelessNetworkInterface::accessPoints() const
 
 QString WicdWirelessNetworkInterface::activeAccessPoint() const
 {
-
+    return d->getAccessPointsWithId()[d->current_network];
 }
 
 QString WicdWirelessNetworkInterface::hardwareAddress() const
 {
+    // Let's parse ifconfig here
 
+    QProcess ifconfig;
+
+    ifconfig.start(QString("ifconfig %1").arg(uni()));
+    ifconfig.waitForFinished();
+
+    QString result = ifconfig.readAllStandardOutput();
+
+    QStringList lines = result.split('\n');
+
+    return lines.at(0).split("HWaddr ").at(1);
 }
 
 QObject * WicdWirelessNetworkInterface::createAccessPoint(const QString & uni)
