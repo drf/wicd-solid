@@ -78,6 +78,7 @@ void WicdAccessPoint::Private::reloadNetworkId()
 
 WicdAccessPoint::WicdAccessPoint(int networkid)
         : AccessPoint(0)
+        , d(new Private())
 {
     d->networkid = networkid;
     d->recacheInformation();
