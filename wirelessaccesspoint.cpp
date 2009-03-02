@@ -20,6 +20,7 @@
 #include "wirelessaccesspoint.h"
 
 #include "wicddbusinterface.h"
+#include "wicd-defines.h"
 
 #include <QtDBus/QDBusReply>
 
@@ -28,7 +29,9 @@
 class WicdAccessPoint::Private
 {
 public:
-    Private() {
+    Private(WicdAccessPoint *parent)
+        : q(parent)
+    {
         createChanMap();
     };
 
@@ -37,6 +40,7 @@ public:
     void recacheInformation();
     void reloadNetworkId();
 
+    WicdAccessPoint *q;
     int networkid;
     QString essid;
     QString bssid;
@@ -47,7 +51,7 @@ public:
     QString encryption_method;
     QString enctype;
     uint frequency;
-    QMap<int, int> chanToFreq;
+    QMap<int, uint> chanToFreq;
     int bitrate;
 };
 
@@ -81,21 +85,35 @@ void WicdAccessPoint::Private::recacheInformation()
     QDBusReply< QString > encryption_methodr = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "encryption_method");
     QDBusReply< QString > enctyper = WicdDbusInterface::instance()->wireless().call("GetWirelessProperty", networkid, "enctype");
 
-    essid = essidr.value();
+    if (essidr.value() != essid) {
+        essid = essidr.value();
+        emit q->ssidChanged(essid);
+    }
     bssid = bssidr.value();
     channel = channelr.value().toInt();
     mode = moder.value();
-    strength = strengthr.value();
+    if (strength != strengthr.value()) {
+        strength = strengthr.value();
+        emit q->signalStrengthChanged(strength);
+    }
     quality = qualityr.value();
     encryption_method = encryption_methodr.value();
     enctype = enctyper.value();
-    frequency = chanToFreq[channel];
+    if (frequency != chanToFreq[channel]) {
+        frequency = chanToFreq[channel];
+        emit q->frequencyChanged(frequency);
+    }
     QStringList bitrates = bitrater.value().split(" Mb/s; ");
     bitrates.last().remove(" Mb/s");
-    bitrate = 0;
+    int bitrate_new = 0;
 
     foreach (const QString &b, bitrates) {
-        bitrate = qMax(bitrate, b.toInt() * 1000);
+        bitrate_new = qMax(bitrate_new, b.toInt() * 1000);
+    }
+
+    if (bitrate_new != bitrate) {
+        bitrate = bitrate_new;
+        emit q->bitRateChanged(bitrate);
     }
 }
 
@@ -114,15 +132,22 @@ void WicdAccessPoint::Private::reloadNetworkId()
 
 WicdAccessPoint::WicdAccessPoint(int networkid)
         : AccessPoint(0)
-        , d(new Private())
+        , d(new Private(this))
 {
     d->networkid = networkid;
     d->recacheInformation();
+    QDBusConnection::systemBus().connect(WICD_DBUS_SERVICE, WICD_DAEMON_DBUS_PATH, WICD_DAEMON_DBUS_INTERFACE,
+                                         "StatusChanged", this, SLOT(refreshStatus()));
 }
 
 WicdAccessPoint::~WicdAccessPoint()
 {
 
+}
+
+void WicdAccessPoint::refreshStatus()
+{
+    d->recacheInformation();
 }
 
 QString WicdAccessPoint::uni() const
