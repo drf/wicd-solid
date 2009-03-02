@@ -40,13 +40,49 @@ class WicdNetworkManagerPrivate
 public:
     WicdNetworkManagerPrivate();
 
-    Wicd::ConnectionStatus cachedState;
+    bool recacheState();
+
+    Solid::Networking::Status cachedState;
     QHash<QString, WicdNetworkInterface *> interfaces;
 };
 
 WicdNetworkManagerPrivate::WicdNetworkManagerPrivate()
-        : cachedState(Wicd::Unknown)
+        : cachedState(Solid::Networking::Unknown)
 {
+    recacheState();
+}
+
+bool WicdNetworkManagerPrivate::recacheState()
+{
+    QDBusMessage message = WicdDbusInterface::instance()->daemon().call("GetConnectionStatus");
+    WicdConnectionInfo s;
+    message.arguments().at(0).value<QDBusArgument>() >> s;
+    kDebug() << "State: " << s.status << " Info: " << s.info;
+    Solid::Networking::Status state;
+
+    switch (static_cast<Wicd::ConnectionStatus>(s.status)) {
+        case Wicd::CONNECTING:
+            state = Solid::Networking::Connecting;
+            break;
+        case Wicd::WIRED:
+        case Wicd::WIRELESS:
+            state = Solid::Networking::Connected;
+            break;
+        case Wicd::NOT_CONNECTED:
+            state = Solid::Networking::Unconnected;
+            break;
+        default:
+        case Wicd::SUSPENDED:
+            state = Solid::Networking::Unknown;
+            break;
+    }
+
+    if (state != cachedState) {
+        cachedState = state;
+        return true;
+    } else {
+        return false;
+    }
 }
 
 
@@ -54,6 +90,8 @@ WicdNetworkManager::WicdNetworkManager(QObject * parent, const QVariantList  & /
         : NetworkManager(parent), d(new WicdNetworkManagerPrivate())
 {
     qDBusRegisterMetaType<WicdConnectionInfo>();
+    QDBusConnection::systemBus().connect(WICD_DBUS_SERVICE, WICD_DAEMON_DBUS_PATH, WICD_DAEMON_DBUS_INTERFACE,
+                                         "StatusChanged", this, SLOT(refreshStatus()));
 }
 
 WicdNetworkManager::~WicdNetworkManager()
@@ -61,33 +99,16 @@ WicdNetworkManager::~WicdNetworkManager()
     delete d;
 }
 
+void WicdNetworkManager::refreshStatus()
+{
+    if (d->recacheState()) {
+        emit statusChanged(d->cachedState);
+    }
+}
+
 Solid::Networking::Status WicdNetworkManager::status() const
 {
-    if (d->cachedState == Wicd::Unknown) {
-        kDebug() << "First run";
-        QDBusMessage message = WicdDbusInterface::instance()->daemon().call("GetConnectionStatus");
-        WicdConnectionInfo s;
-        message.arguments().at(0).value<QDBusArgument>() >> s;
-        kDebug() << "State: " << s.status << " Info: " << s.info;
-        d->cachedState = static_cast<Wicd::ConnectionStatus>(s.status);
-    }
-
-    switch (d->cachedState) {
-    case Wicd::CONNECTING:
-        return Solid::Networking::Connecting;
-        break;
-    case Wicd::WIRED:
-    case Wicd::WIRELESS:
-        return Solid::Networking::Connected;
-        break;
-    case Wicd::NOT_CONNECTED:
-        return Solid::Networking::Unconnected;
-        break;
-    default:
-    case Wicd::SUSPENDED:
-        return Solid::Networking::Unknown;
-        break;
-    }
+    return d->cachedState;
 }
 
 QStringList WicdNetworkManager::networkInterfaces() const
@@ -173,12 +194,9 @@ QObject * WicdNetworkManager::createNetworkInterface(const QString  & uni)
 
 bool WicdNetworkManager::isNetworkingEnabled() const
 {
-    if (d->cachedState == Wicd::Unknown) {
-        status();
-    }
-
-    return Wicd::CONNECTING == d->cachedState || Wicd::WIRED == d->cachedState ||
-           Wicd::WIRELESS == d->cachedState || Wicd::NOT_CONNECTED == d->cachedState;
+    return Solid::Networking::Connecting == d->cachedState ||
+           Solid::Networking::Connected == d->cachedState ||
+           Solid::Networking::Unconnected == d->cachedState;
 }
 
 bool WicdNetworkManager::isWirelessEnabled() const
