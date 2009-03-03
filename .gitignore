@@ -6,3 +6,5 @@ build/
 .project
 Debug/
 .settings
+*.orig
+

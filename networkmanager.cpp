@@ -61,20 +61,20 @@ bool WicdNetworkManagerPrivate::recacheState()
     Solid::Networking::Status state;
 
     switch (static_cast<Wicd::ConnectionStatus>(s.status)) {
-        case Wicd::CONNECTING:
-            state = Solid::Networking::Connecting;
-            break;
-        case Wicd::WIRED:
-        case Wicd::WIRELESS:
-            state = Solid::Networking::Connected;
-            break;
-        case Wicd::NOT_CONNECTED:
-            state = Solid::Networking::Unconnected;
-            break;
-        default:
-        case Wicd::SUSPENDED:
-            state = Solid::Networking::Unknown;
-            break;
+    case Wicd::CONNECTING:
+        state = Solid::Networking::Connecting;
+        break;
+    case Wicd::WIRED:
+    case Wicd::WIRELESS:
+        state = Solid::Networking::Connected;
+        break;
+    case Wicd::NOT_CONNECTED:
+        state = Solid::Networking::Unconnected;
+        break;
+    default:
+    case Wicd::SUSPENDED:
+        state = Solid::Networking::Unknown;
+        break;
     }
 
     if (state != cachedState) {

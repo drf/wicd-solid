@@ -30,14 +30,14 @@
 
 class WicdWiredNetworkInterface::Private
 {
-    public:
+public:
 
-        bool isActiveInterface;
-        QString uni;
-        int bitrate;
-        QString driver;
-        bool carrier;
-        Solid::Control::NetworkInterface::ConnectionState connection_state;
+    bool isActiveInterface;
+    QString uni;
+    int bitrate;
+    QString driver;
+    bool carrier;
+    Solid::Control::NetworkInterface::ConnectionState connection_state;
 };
 
 WicdWiredNetworkInterface::WicdWiredNetworkInterface(const QString &name)
@@ -81,8 +81,8 @@ void WicdWiredNetworkInterface::recacheInformation()
         } else if (cstater.value() == "interface_down") {
             connection_state = Solid::Control::NetworkInterface::Disconnected;
         } else if (cstater.value() == "running_dhcp" ||
-                cstater.value() == "setting_static_ip" ||
-                cstater.value() == "setting_broadcast_address") {
+                   cstater.value() == "setting_static_ip" ||
+                   cstater.value() == "setting_broadcast_address") {
             connection_state = Solid::Control::NetworkInterface::IPConfig;
         } else if (cstater.value() == "interface_up") {
             connection_state = Solid::Control::NetworkInterface::Preparing;

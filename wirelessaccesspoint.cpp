@@ -30,8 +30,7 @@ class WicdAccessPoint::Private
 {
 public:
     Private(WicdAccessPoint *parent)
-        : q(parent)
-    {
+            : q(parent) {
         createChanMap();
     };
 
@@ -107,7 +106,7 @@ void WicdAccessPoint::Private::recacheInformation()
     bitrates.last().remove(" Mb/s");
     int bitrate_new = 0;
 
-    foreach (const QString &b, bitrates) {
+    foreach(const QString &b, bitrates) {
         bitrate_new = qMax(bitrate_new, b.toInt() * 1000);
     }
 

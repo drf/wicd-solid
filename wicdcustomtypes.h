@@ -24,8 +24,7 @@
 #include <QtCore/QStringList>
 #include <QtDBus/QDBusArgument>
 
-struct WicdConnectionInfo
-{
+struct WicdConnectionInfo {
     int status;
     QStringList info;
 };
