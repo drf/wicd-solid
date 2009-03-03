@@ -117,7 +117,7 @@ QStringList WicdNetworkManager::networkInterfaces() const
 
     QProcess ifconfig;
 
-    ifconfig.start(QString("ifconfig"));
+    ifconfig.start(QString("ifconfig -a"));
     ifconfig.waitForFinished();
 
     QString result = ifconfig.readAllStandardOutput();
@@ -131,7 +131,9 @@ QStringList WicdNetworkManager::networkInterfaces() const
     foreach(const QString &line, lines) {
         if (enterIface) {
             if (!line.split(' ').at(0).isEmpty()) {
-                ifaces.append(line.split(' ').at(0));
+                if (line.split(' ').at(0) != "lo" && !line.split(' ').at(0).contains("wmaster")) {
+                    ifaces.append(line.split(' ').at(0));
+                }
             }
             enterIface = false;
         }
@@ -147,6 +149,12 @@ QStringList WicdNetworkManager::networkInterfaces() const
 QObject * WicdNetworkManager::createNetworkInterface(const QString  & uni)
 {
     kDebug(1441) << uni;
+
+    if (!networkInterfaces().contains(uni)) {
+        kDebug() << "Interface not present in the available list, returning 0";
+        return 0;
+    }
+
     WicdNetworkInterface * netInterface = 0;
     QHash<QString, WicdNetworkInterface *>::Iterator it = d->interfaces.find(uni);
     if (it == d->interfaces.end()) {
