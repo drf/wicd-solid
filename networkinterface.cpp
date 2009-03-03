@@ -114,11 +114,6 @@ QString WicdNetworkInterface::uni() const
     return d->name;
 }
 
-bool WicdNetworkInterface::isActive() const
-{
-
-}
-
 int WicdNetworkInterface::designSpeed() const
 {
     return 0;

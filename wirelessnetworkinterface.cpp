@@ -161,6 +161,11 @@ Solid::Control::NetworkInterface::Type WicdWirelessNetworkInterface::type() cons
     return Solid::Control::NetworkInterface::Ieee80211;
 }
 
+bool WicdWirelessNetworkInterface::isActive() const
+{
+    return d->isActiveInterface;
+}
+
 QString WicdWirelessNetworkInterface::driver() const
 {
     return d->driver;

@@ -35,6 +35,7 @@ public:
     Solid::Control::NetworkInterface::Type type() const;
     QString driver() const;
     Solid::Control::NetworkInterface::ConnectionState connectionState() const;
+    bool isActive() const;
     int bitRate() const;
     Solid::Control::WirelessNetworkInterface::Capabilities wirelessCapabilities() const;
     Solid::Control::WirelessNetworkInterface::OperationMode mode() const;

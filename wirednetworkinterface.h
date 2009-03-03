@@ -36,6 +36,7 @@ public:
 
     Solid::Control::NetworkInterface::Type type() const;
     Solid::Control::NetworkInterface::ConnectionState connectionState() const;
+    bool isActive() const;
     QString driver() const;
     QString hardwareAddress() const;
     int bitRate() const;
@@ -44,9 +45,14 @@ public:
     /* reimp */ bool activateConnection(const QString & connectionUni, const QVariantMap & connectionParameters);
     /* reimp */ bool deactivateConnection();
 
+private Q_SLOTS:
+    void recacheInformation();
 Q_SIGNALS:
     void bitRateChanged(int bitRate);
     void carrierChanged(bool plugged);
+private:
+    class Private;
+    Private *d;
 };
 
 #endif // WICD_WIRELESSNETWORKINTERFACE_H
