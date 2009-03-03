@@ -34,6 +34,7 @@ public:
     virtual ~WicdWirelessNetworkInterface();
     Solid::Control::NetworkInterface::Type type() const;
     QString driver() const;
+    Solid::Control::NetworkInterface::ConnectionState connectionState() const;
     int bitRate() const;
     Solid::Control::WirelessNetworkInterface::Capabilities wirelessCapabilities() const;
     Solid::Control::WirelessNetworkInterface::OperationMode mode() const;
@@ -41,12 +42,15 @@ public:
     QString activeAccessPoint() const;
     QString hardwareAddress() const;
     QObject * createAccessPoint(const QString & uni);
+private Q_SLOTS:
+    void recacheInformation();
 Q_SIGNALS:
     void bitRateChanged(int bitrate);
     void activeAccessPointChanged(const QString &);
     void modeChanged(Solid::Control::WirelessNetworkInterface::OperationMode);
     void accessPointAppeared(const QString &);
     void accessPointDisappeared(const QString &);
+    void connectionStateChanged(int state);
 private:
     class Private;
     Private *d;

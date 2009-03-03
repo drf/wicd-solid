@@ -35,6 +35,7 @@ public:
     virtual ~WicdWiredNetworkInterface();
 
     Solid::Control::NetworkInterface::Type type() const;
+    Solid::Control::NetworkInterface::ConnectionState connectionState() const;
     QString driver() const;
     QString hardwareAddress() const;
     int bitRate() const;

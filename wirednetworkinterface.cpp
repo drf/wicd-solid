@@ -35,6 +35,15 @@ WicdWiredNetworkInterface::~WicdWiredNetworkInterface()
 
 }
 
+Solid::Control::NetworkInterface::ConnectionState WicdWiredNetworkInterface::connectionState() const
+{
+    /*if (d->isActiveInterface) {
+        return d->connection_state;
+    } else {
+        return Solid::Control::NetworkInterface::Unavailable;
+    }*/
+}
+
 Solid::Control::NetworkInterface::Type WicdWiredNetworkInterface::type() const
 {
     return Solid::Control::NetworkInterface::Ieee8023;

@@ -43,7 +43,7 @@ public:
     QString uni() const;
     bool isActive() const;
     virtual Solid::Control::NetworkInterface::Type type() const = 0;
-    Solid::Control::NetworkInterface::ConnectionState connectionState() const;
+    virtual Solid::Control::NetworkInterface::ConnectionState connectionState() const = 0;
     int designSpeed() const;
     Solid::Control::NetworkInterface::Capabilities capabilities() const;
 

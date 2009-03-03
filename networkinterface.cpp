@@ -29,6 +29,7 @@ public:
     quint32 parseIPv4Address(const QString & addressString);
 
     QString name;
+
 };
 
 WicdNetworkInterfacePrivate::WicdNetworkInterfacePrivate(const QString &n)
@@ -118,14 +119,9 @@ bool WicdNetworkInterface::isActive() const
 
 }
 
-Solid::Control::NetworkInterface::ConnectionState WicdNetworkInterface::connectionState() const
-{
-
-}
-
 int WicdNetworkInterface::designSpeed() const
 {
-
+    return 0;
 }
 
 Solid::Control::NetworkInterface::Capabilities WicdNetworkInterface::capabilities() const
