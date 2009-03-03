@@ -121,6 +121,19 @@ bool WicdWiredNetworkInterface::isActive() const
     return d->isActiveInterface;
 }
 
+Solid::Control::NetworkInterface::Capabilities WicdWiredNetworkInterface::capabilities() const
+{
+    Solid::Control::NetworkInterface::Capabilities cap;
+
+    if (interfaceName() != "lo" || !interfaceName().contains("wmaster")) {
+        cap |= Solid::Control::NetworkInterface::IsManageable;
+    }
+
+    cap |= Solid::Control::NetworkInterface::SupportsCarrierDetect;
+
+    return cap;
+}
+
 QString WicdWiredNetworkInterface::driver() const
 {
     return QString();
@@ -156,7 +169,7 @@ bool WicdWiredNetworkInterface::activateConnection(const QString & connectionUni
 {
     Q_UNUSED(connectionUni)
     Q_UNUSED(connectionParameters)
-    WicdDbusInterface::instance()->daemon().call("SetWiredInterface", uni());
+    WicdDbusInterface::instance()->daemon().call("SetWiredInterface", interfaceName());
     WicdDbusInterface::instance()->wired().call("ConnectWired");
     return true;
 }

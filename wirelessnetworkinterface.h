@@ -36,6 +36,7 @@ public:
     QString driver() const;
     Solid::Control::NetworkInterface::ConnectionState connectionState() const;
     bool isActive() const;
+    Solid::Control::NetworkInterface::Capabilities capabilities() const;
     int bitRate() const;
     Solid::Control::WirelessNetworkInterface::Capabilities wirelessCapabilities() const;
     Solid::Control::WirelessNetworkInterface::OperationMode mode() const;

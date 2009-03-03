@@ -119,12 +119,7 @@ int WicdNetworkInterface::designSpeed() const
     return 0;
 }
 
-Solid::Control::NetworkInterface::Capabilities WicdNetworkInterface::capabilities() const
-{
-
-}
-
-bool WicdNetworkInterface::activateConnection(const QString & connectionUni, const QVariantMap & connectionParameters)
+bool WicdNetworkInterface::activateConnection(const QString &, const QVariantMap &)
 {
     return false;
 }

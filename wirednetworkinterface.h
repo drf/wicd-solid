@@ -37,6 +37,7 @@ public:
     Solid::Control::NetworkInterface::Type type() const;
     Solid::Control::NetworkInterface::ConnectionState connectionState() const;
     bool isActive() const;
+    Solid::Control::NetworkInterface::Capabilities capabilities() const;
     QString driver() const;
     QString hardwareAddress() const;
     int bitRate() const;

@@ -166,6 +166,17 @@ bool WicdWirelessNetworkInterface::isActive() const
     return d->isActiveInterface;
 }
 
+Solid::Control::NetworkInterface::Capabilities WicdWirelessNetworkInterface::capabilities() const
+{
+    Solid::Control::NetworkInterface::Capabilities cap;
+
+    if (interfaceName() != "lo" || !interfaceName().contains("wmaster")) {
+        cap |= Solid::Control::NetworkInterface::IsManageable;
+    }
+
+    return cap;
+}
+
 QString WicdWirelessNetworkInterface::driver() const
 {
     return d->driver;
